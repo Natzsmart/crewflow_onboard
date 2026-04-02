@@ -46,7 +46,15 @@ export default function ReliefPage() {
       .select("*")
       .neq("relief_status", "complete")
       .order("sign_off_date", { ascending: true });
-    setCrew(data || []);
+    const updated = (data || []).map(s => {
+      const days = Math.ceil((new Date(s.sign_off_date).getTime() - Date.now()) / 86400000);
+      const urgency = days <= 0 ? "overdue" : days <= 7 ? "critical" : days <= 14 ? "high" : days <= 28 ? "medium" : "on_track";
+      if (s.urgency_level !== urgency) {
+        supabase.from("seafarers").update({ urgency_level: urgency }).eq("id", s.id);
+      }
+      return { ...s, urgency_level: urgency };
+    });
+    setCrew(updated);
     setLoading(false);
   }
 
@@ -145,13 +153,13 @@ export default function ReliefPage() {
 
         {/* SIDEBAR */}
         <aside className="sidebar">
-          <a href="/" className="sidebar-brand">
+          <a href="/dashboard" className="sidebar-brand">
             <div className="sidebar-logo">CREW<span>FLOW</span></div>
             <div className="sidebar-tagline">MARITIME CREW MANAGEMENT</div>
           </a>
           <nav className="sidebar-nav">
             <div className="sidebar-section">OVERVIEW</div>
-            <a href="/" className="sidebar-link">
+            <a href="/dashboard" className="sidebar-link">
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
               Dashboard
             </a>

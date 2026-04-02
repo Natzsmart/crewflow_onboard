@@ -958,7 +958,7 @@ export default function LandingPage() {
 
         {/* ── NAV ── */}
         <nav style={{ position:"fixed", top:0, left:0, right:0, zIndex:200, display:"flex", alignItems:"center", justifyContent:"space-between", padding:"0 60px", height:68, background:t.navBg, backdropFilter:"blur(20px)", borderBottom:`1px solid ${t.border}`, transition:"all .3s" }} className="nav-wrap">
-          <a href="/landing" style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:26, letterSpacing:4, color:t.text, textDecoration:"none" }}>
+          <a href=" " style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:26, letterSpacing:4, color:t.text, textDecoration:"none" }}>
             CREW<span style={{ color:"#f97316" }}>FLOW</span>
           </a>
 

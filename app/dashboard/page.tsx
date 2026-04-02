@@ -43,7 +43,7 @@ function Slideshow({ images }: { images: string[] }) {
 
 const MODULE_IMAGES = {
   relief: [
-    "https://images.unsplash.com/photo-2vPGGOU-wLA?w=600&q=60",
+    "https://images.unsplash.com/photo-1504309092620-4d0ec726efa4?w=600&q=60",
     "https://images.unsplash.com/photo-1548438294-1ad5d5f4f063?w=600&q=60",
     "https://images.unsplash.com/photo-1473621038790-b778b4750efe?w=600&q=60",
   ],
@@ -360,7 +360,7 @@ export default function Home() {
 
           <nav className="sidebar-nav">
             <div className="sidebar-section">OVERVIEW</div>
-            <a href="/" className="sidebar-link active">
+            <a href="/dashboard" className="sidebar-link active">
               <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></svg>
               Dashboard
             </a>
