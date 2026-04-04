@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
+import { useAuth } from "../lib/useAuth";
 
 function AnimatedNumber({ target }: { target: number }) {
   const [n, setN] = useState(0);
@@ -65,6 +66,7 @@ const MODULE_IMAGES = {
 };
 
 export default function Home() {
+  const { checking } = useAuth();
   const [stats, setStats] = useState({ seafarers:0, vacancies:0, placements:0, alerts:0 });
   const [time, setTime] = useState("");
   const [date, setDate] = useState("");
@@ -111,6 +113,8 @@ export default function Home() {
     { href:"/vacancies", images:MODULE_IMAGES.vacancies, tag:"LIVE DATA",    name:"Vacancy Pipeline",      desc:"Kanban board for every open position. Post, shortlist, confirm — all in real time.", stat:`${stats.vacancies} open` },
     { href:"/checklist", images:MODULE_IMAGES.checklist, tag:"COMPLIANCE",   name:"Pre-Joining Checklist", desc:"26-point checklist covering documents, medical, travel, and vessel instructions.", stat:"26 checkpoints" },
   ];
+
+  if (checking) return <div style={{ minHeight:"100vh", background:"#0d0e12", display:"flex", alignItems:"center", justifyContent:"center", color:"#f97316", fontFamily:"Bebas Neue", fontSize:24, letterSpacing:4 }}>LOADING...</div>;
 
   return (
     <>
@@ -341,6 +345,10 @@ export default function Home() {
           </nav>
 
           <div className="sidebar-bottom">
+            <button onClick={async () => { const { supabase } = await import("../lib/supabase"); await supabase.auth.signOut(); window.location.href = "/login"; }}
+              style={{ width:"100%", background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.15)", borderRadius:8, padding:"8px 12px", color:"#ef4444", fontSize:12, fontWeight:600, cursor:"pointer", marginBottom:10, fontFamily:"Outfit,sans-serif", transition:"all .2s" }}>
+              Sign Out
+            </button>
             <div className="sidebar-status">
               <div className="sidebar-status-dot" />
               <div>
@@ -395,6 +403,10 @@ export default function Home() {
           </nav>
 
           <div className="sidebar-bottom">
+            <button onClick={async () => { const { supabase } = await import("../lib/supabase"); await supabase.auth.signOut(); window.location.href = "/login"; }}
+              style={{ width:"100%", background:"rgba(239,68,68,0.08)", border:"1px solid rgba(239,68,68,0.15)", borderRadius:8, padding:"8px 12px", color:"#ef4444", fontSize:12, fontWeight:600, cursor:"pointer", marginBottom:10, fontFamily:"Outfit,sans-serif", transition:"all .2s" }}>
+              Sign Out
+            </button>
             <div className="sidebar-status">
               <div className="sidebar-status-dot" />
               <div>

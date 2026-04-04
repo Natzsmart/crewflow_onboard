@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "../lib/useAuth";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 
@@ -81,6 +82,7 @@ function Ring({ pct, color, size=72, stroke=6 }: { pct:number; color:string; siz
 }
 
 export default function ChecklistPage() {
+  const { checking } = useAuth();
   const [sfId, setSfId]         = useState("sf-001");
   const [items, setItems]       = useState<Record<string,{status:string;notes:string}>>({});
   const [loading, setLoading]   = useState(true);
@@ -117,6 +119,8 @@ export default function ChecklistPage() {
   const reqPct        = requiredItems.length ? Math.round((requiredItems.filter(i=>approved(i.id)).length/requiredItems.length)*100) : 0;
   const isCleared     = reqPct===100;
   const daysLeft      = daysTo(sf?.joining||"");
+
+  if (checking) return <div style={{ minHeight:"100vh", background:"#0d0e12", display:"flex", alignItems:"center", justifyContent:"center", color:"#f97316", fontFamily:"Bebas Neue", fontSize:24, letterSpacing:4 }}>LOADING...</div>;
 
   return (
     <>

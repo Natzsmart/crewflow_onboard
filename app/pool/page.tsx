@@ -1,4 +1,5 @@
 "use client";
+import { useAuth } from "../lib/useAuth";
 import { useEffect, useState } from "react";
 import { supabase } from "../lib/supabase";
 
@@ -26,6 +27,7 @@ function stars(r: number) {
 }
 
 export default function PoolPage() {
+  const { checking } = useAuth();
   const [pool, setPool]         = useState<Seafarer[]>([]);
   const [loading, setLoading]   = useState(true);
   const [selected, setSelected] = useState<Seafarer|null>(null);
@@ -123,6 +125,8 @@ export default function PoolPage() {
       </div>
     </aside>
   );
+
+  if (checking) return <div style={{ minHeight:"100vh", background:"#0d0e12", display:"flex", alignItems:"center", justifyContent:"center", color:"#f97316", fontFamily:"Bebas Neue", fontSize:24, letterSpacing:4 }}>LOADING...</div>;
 
   return (
     <>
