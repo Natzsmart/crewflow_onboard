@@ -37,12 +37,19 @@ export default function PoolPage() {
   const [showAdd, setShowAdd]   = useState(false);
   const [toast, setToast]       = useState("");
   const [saving, setSaving]     = useState(false);
+  const [showAI, setShowAI]     = useState(false);
+  const [vacancies, setVacancies] = useState<any[]>([]);
+  const [selVacancy, setSelVacancy] = useState("");
+  const [aiResults, setAiResults] = useState<any[]>([]);
+  const [aiLoading, setAiLoading] = useState(false);
   const [form, setForm]         = useState({ full_name:"", rank:"", nationality:"", experience_years:"", available_from:"", email:"", whatsapp:"", notes:"" });
 
   async function load() {
-    const { data } = await supabase.from("seafarers").select("*").eq("is_available", true).order("overall_rating", { ascending:false });
+    const { data } = await supabase.from("seafarers").select("*").order("overall_rating", { ascending:false });
     setPool(data || []);
     setLoading(false);
+    const { data: vdata } = await supabase.from("vacancies").select("*").neq("status","placed");
+    setVacancies(vdata || []);
   }
 
   useEffect(() => {
@@ -70,6 +77,25 @@ export default function PoolPage() {
     load();
   }
 
+  async function runAIMatch() {
+    if (!selVacancy) return;
+    setAiLoading(true);
+    setAiResults([]);
+    const vacancy = vacancies.find(v => v.id === selVacancy);
+    try {
+      const res = await fetch("/api/ai/match", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ vacancy, seafarers: pool })
+      });
+      const data = await res.json();
+      setAiResults(data.matches || []);
+    } catch(e) {
+      setToast("AI matching failed. Try again.");
+    }
+    setAiLoading(false);
+  }
+
   const filtered = pool.filter(s => {
     const matchSearch = s.full_name?.toLowerCase().includes(search.toLowerCase()) || s.rank?.toLowerCase().includes(search.toLowerCase()) || s.nationality?.toLowerCase().includes(search.toLowerCase());
     const matchRank   = rankF === "All" || s.rank === rankF;
@@ -86,13 +112,13 @@ export default function PoolPage() {
 
   const SIDEBAR = (active: string) => (
     <aside style={{ width:220, flexShrink:0, background:"#111318", borderRight:"1px solid rgba(255,255,255,0.05)", display:"flex", flexDirection:"column", position:"fixed", top:0, bottom:0, left:0, zIndex:200 }}>
-      <a href="/" style={{ padding:"20px 22px 18px", borderBottom:"1px solid rgba(255,255,255,0.05)", textDecoration:"none", display:"block" }}>
+      <a href="/dashboard" style={{ padding:"20px 22px 18px", borderBottom:"1px solid rgba(255,255,255,0.05)", textDecoration:"none", display:"block" }}>
         <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:4, color:"#fff" }}>CREW<span style={{ color:"#f97316" }}>FLOW</span></div>
         <div style={{ fontSize:9, fontWeight:600, color:"#374151", letterSpacing:2, marginTop:2 }}>MARITIME CREW MANAGEMENT</div>
       </a>
       <nav style={{ flex:1, padding:"16px 12px", overflowY:"auto" }}>
         {[
-          { section:"OVERVIEW", links:[{ href:"/", label:"Dashboard", icon:<svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> }] },
+          { section:"OVERVIEW", links:[{ href:"/dashboard", label:"Dashboard", icon:<svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg> }] },
           { section:"MODULES", links:[
             { href:"/relief",    label:"Relief Planning", icon:<svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> },
             { href:"/pool",      label:"Seafarer Pool",   icon:<svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg> },
@@ -156,10 +182,16 @@ export default function PoolPage() {
               <span style={{ fontSize:14, fontWeight:700, color:"#e2e8f0" }}>Seafarer Pool</span>
               <span style={{ fontSize:11, color:"#374151" }}>/ Available Crew Roster</span>
             </div>
-            <button className="btn" onClick={() => setShowAdd(!showAdd)}
-              style={{ background:"#f97316", color:"#fff", padding:"8px 18px", borderRadius:8, fontSize:12, fontWeight:700, boxShadow:"0 4px 12px rgba(249,115,22,.3)" }}>
-              + Add Seafarer
-            </button>
+            <div style={{ display:"flex", gap:10 }}>
+              <button onClick={() => setShowAI(true)}
+                style={{ background:"rgba(249,115,22,0.1)", color:"#f97316", border:"1px solid rgba(249,115,22,0.3)", padding:"8px 18px", borderRadius:8, fontSize:12, fontWeight:700, cursor:"pointer" }}>
+                🤖 AI Match
+              </button>
+              <button className="btn" onClick={() => setShowAdd(!showAdd)}
+                style={{ background:"#f97316", color:"#fff", padding:"8px 18px", borderRadius:8, fontSize:12, fontWeight:700, boxShadow:"0 4px 12px rgba(249,115,22,.3)" }}>
+                + Add Seafarer
+              </button>
+            </div>
           </div>
 
           <div style={{ padding:"24px 28px" }}>
@@ -307,6 +339,54 @@ export default function PoolPage() {
               style={{ width:"100%", marginTop:20, background: selected.is_available?"rgba(249,115,22,0.1)":"rgba(34,197,94,0.1)", color:selected.is_available?"#f97316":"#22c55e", border:`1px solid ${selected.is_available?"rgba(249,115,22,0.3)":"rgba(34,197,94,0.3)"}`, padding:"11px", borderRadius:10, fontSize:13, fontWeight:700 }}>
               {selected.is_available ? "Mark as On Leave" : "Mark as Available"}
             </button>
+          </div>
+        )}
+
+        {/* AI MATCH MODAL */}
+        {showAI && (
+          <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.7)", zIndex:500, display:"flex", alignItems:"center", justifyContent:"center", padding:24 }}>
+            <div style={{ background:"#111318", border:"1px solid rgba(249,115,22,0.2)", borderRadius:16, padding:32, width:"100%", maxWidth:520 }}>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:24 }}>
+                <div>
+                  <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:2, color:"#f97316" }}>🤖 AI CREW MATCHING</div>
+                  <div style={{ fontSize:12, color:"#4b5563", marginTop:2 }}>Select a vacancy to find the best candidates</div>
+                </div>
+                <button onClick={() => { setShowAI(false); setAiResults([]); setSelVacancy(""); }}
+                  style={{ background:"rgba(255,255,255,0.05)", border:"none", color:"#6b7280", fontSize:18, cursor:"pointer", borderRadius:8, width:32, height:32 }}>✕</button>
+              </div>
+
+              <select value={selVacancy} onChange={e => setSelVacancy(e.target.value)}
+                style={{ width:"100%", background:"rgba(255,255,255,0.04)", border:"1px solid rgba(255,255,255,0.08)", borderRadius:10, padding:"12px 16px", fontFamily:"'Outfit',sans-serif", fontSize:14, color:"#e2e8f0", outline:"none", marginBottom:16 }}>
+                <option value="">-- Select a vacancy --</option>
+                {vacancies.map(v => (
+                  <option key={v.id} value={v.id}>{v.vessel} — {v.rank}</option>
+                ))}
+              </select>
+
+              <button onClick={runAIMatch} disabled={!selVacancy || aiLoading}
+                style={{ width:"100%", background: !selVacancy||aiLoading?"#7c3a16":"#f97316", color:"#fff", fontFamily:"'Outfit',sans-serif", fontSize:14, fontWeight:700, padding:12, borderRadius:10, border:"none", cursor: !selVacancy||aiLoading?"not-allowed":"pointer", marginBottom:20, boxShadow:"0 4px 16px rgba(249,115,22,0.3)" }}>
+                {aiLoading ? "🤖 Analysing pool..." : "Find Best Matches →"}
+              </button>
+
+              {aiResults.length > 0 && (
+                <div>
+                  <div style={{ fontSize:11, fontWeight:700, color:"#374151", letterSpacing:2, marginBottom:12 }}>TOP CANDIDATES</div>
+                  {aiResults.map((r, i) => (
+                    <div key={i} style={{ background:"rgba(255,255,255,0.03)", border:"1px solid rgba(255,255,255,0.06)", borderRadius:10, padding:"14px 16px", marginBottom:10 }}>
+                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
+                        <div style={{ fontSize:14, fontWeight:700, color:"#e2e8f0" }}>
+                          {i===0?"🥇":i===1?"🥈":"🥉"} {r.name}
+                        </div>
+                        <div style={{ background: i===0?"rgba(249,115,22,0.15)":"rgba(255,255,255,0.06)", border:`1px solid ${i===0?"rgba(249,115,22,0.3)":"rgba(255,255,255,0.1)"}`, borderRadius:20, padding:"3px 10px", fontSize:12, fontWeight:700, color: i===0?"#f97316":"#6b7280" }}>
+                          {r.score}/100
+                        </div>
+                      </div>
+                      <div style={{ fontSize:12, color:"#4b5563", lineHeight:1.6 }}>{r.reason}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
         )}
 

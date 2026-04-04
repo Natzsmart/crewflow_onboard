@@ -19,10 +19,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { vessel_name, rank_required, joining_date, port, notes } = body
-    if (!vessel_name || !rank_required) return Response.json({ error: 'vessel_name and rank_required are required' }, { status: 400 })
+    const { vessel, rank, vessel_type, flag, port, joining_date, deadline, salary_usd, contract_months, priority, owner } = body
+    if (!vessel || !rank) return Response.json({ error: 'vessel and rank are required' }, { status: 400 })
     const { data, error } = await supabase.from('vacancies')
-      .insert({ vessel_name, rank_required, joining_date: joining_date||null, port: port||null, notes: notes||null, status: 'open' })
+      .insert({ vessel, rank, vessel_type: vessel_type||null, flag: flag||null, port: port||null, joining_date: joining_date||null, deadline: deadline||null, salary_usd: salary_usd||null, contract_months: contract_months||3, priority: priority||"normal", owner: owner||null, status: "open", candidates: 0 })
       .select().single()
     if (error) throw error
     return Response.json({ success: true, data }, { status: 201 })

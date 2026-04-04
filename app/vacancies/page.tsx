@@ -35,7 +35,7 @@ function fmt(d: string) { return d ? new Date(d).toLocaleDateString("en-GB",{day
 
 const SidebarNav = ({ active }: { active: string }) => (
   <aside style={{ width:220, flexShrink:0, background:"#111318", borderRight:"1px solid rgba(255,255,255,0.05)", display:"flex", flexDirection:"column", position:"fixed", top:0, bottom:0, left:0, zIndex:200 }}>
-    <a href="/" style={{ padding:"20px 22px 18px", borderBottom:"1px solid rgba(255,255,255,0.05)", textDecoration:"none", display:"block" }}>
+    <a href="/dashboard" style={{ padding:"20px 22px 18px", borderBottom:"1px solid rgba(255,255,255,0.05)", textDecoration:"none", display:"block" }}>
       <div style={{ fontFamily:"'Bebas Neue',sans-serif", fontSize:22, letterSpacing:4, color:"#fff" }}>CREW<span style={{color:"#f97316"}}>FLOW</span></div>
       <div style={{ fontSize:9, fontWeight:600, color:"#374151", letterSpacing:2, marginTop:2 }}>MARITIME CREW MANAGEMENT</div>
     </a>
