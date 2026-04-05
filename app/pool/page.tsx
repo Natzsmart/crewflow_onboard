@@ -13,6 +13,8 @@ type Seafarer = {
   overall_rating: number;
   is_available: boolean;
   available_from: string;
+  sign_off_date: string;
+  urgency_level: string;
   email: string;
   whatsapp: string;
   notes: string;
@@ -321,6 +323,7 @@ export default function PoolPage() {
               { label:"Total Voyages",  val:selected.total_voyages||0 },
               { label:"Rating",         val:selected.overall_rating ? `${selected.overall_rating}/5` : "Not rated" },
               { label:"Status",         val:selected.is_available?"Available":"On Leave" },
+              { label:"Sign-Off Date",  val:selected.sign_off_date ? new Date(selected.sign_off_date).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) : "—" },
               { label:"Available From", val:selected.available_from ? new Date(selected.available_from).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}) : "—" },
               { label:"Email",          val:selected.email||"—" },
               { label:"WhatsApp",       val:selected.whatsapp||"—" },

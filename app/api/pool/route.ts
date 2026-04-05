@@ -19,7 +19,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { full_name, rank, email, whatsapp, telegram_id, sign_off_date, experience_years, certifications } = body
+    const { full_name, rank, nationality, email, whatsapp, telegram_id, sign_off_date, experience_years } = body
     if (!full_name || !rank) return Response.json({ error: 'full_name and rank are required' }, { status: 400 })
     let urgency_level = 'on_track'
     if (sign_off_date) {
@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
       urgency_level = days <= 0 ? 'overdue' : days <= 7 ? 'critical' : days <= 14 ? 'high' : days <= 28 ? 'medium' : 'on_track'
     }
     const { data, error } = await supabase.from('seafarers')
-      .insert({ full_name, rank, email: email||null, whatsapp: whatsapp||null, telegram_id: telegram_id||null, sign_off_date: sign_off_date||null, experience_years: experience_years ? parseInt(experience_years) : 0, certifications: certifications||[], is_available: true, relief_status: 'unassigned', urgency_level })
+      .insert({ full_name, rank, nationality: nationality||null, email: email||null, whatsapp: whatsapp||null, telegram_id: telegram_id||null, sign_off_date: sign_off_date||null, experience_years: experience_years ? parseInt(experience_years) : 0, is_available: true, relief_status: 'unassigned', urgency_level })
       .select().single()
     if (error) throw error
     return Response.json({ success: true, data }, { status: 201 })

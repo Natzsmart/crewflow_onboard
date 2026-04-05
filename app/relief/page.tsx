@@ -49,6 +49,7 @@ export default function ReliefPage() {
       .neq("relief_status", "complete")
       .order("sign_off_date", { ascending: true });
     const updated = (data || []).map(s => {
+      if (!s.sign_off_date) return { ...s };
       const days = Math.ceil((new Date(s.sign_off_date).getTime() - Date.now()) / 86400000);
       const urgency = days <= 0 ? "overdue" : days <= 7 ? "critical" : days <= 14 ? "high" : days <= 28 ? "medium" : "on_track";
       if (s.urgency_level !== urgency) {
@@ -100,6 +101,7 @@ export default function ReliefPage() {
     overdue:  crew.filter(s => s.urgency_level === "overdue").length,
     critical: crew.filter(s => s.urgency_level === "critical").length,
     high:     crew.filter(s => s.urgency_level === "high").length,
+    medium:   crew.filter(s => s.urgency_level === "medium").length,
     ontrack:  crew.filter(s => s.urgency_level === "on_track").length,
   };
 
@@ -248,12 +250,13 @@ export default function ReliefPage() {
             )}
 
             {/* Stats */}
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(5,1fr)", gap:12, marginBottom:22 }}>
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(6,1fr)", gap:12, marginBottom:22 }}>
               {[
                 { label:"TOTAL CREW",     val:stats.total,    color:"#e2e8f0" },
                 { label:"OVERDUE",        val:stats.overdue,  color:"#ef4444" },
                 { label:"CRITICAL ≤7D",   val:stats.critical, color:"#f97316" },
                 { label:"HIGH ≤14D",      val:stats.high,     color:"#eab308" },
+                { label:"MEDIUM ≤28D",    val:stats.medium,   color:"#3b82f6" },
                 { label:"ON TRACK",       val:stats.ontrack,  color:"#22c55e" },
               ].map((s,i) => (
                 <div key={s.label} style={{ background:"#111318", border:"1px solid rgba(255,255,255,0.05)", borderRadius:12, padding:"16px 18px", animation:`fadeUp .4s ease ${i*.06}s both` }}>
@@ -302,9 +305,9 @@ export default function ReliefPage() {
                     style={{ display:"grid", gridTemplateColumns:"2fr 1.5fr 1fr 1fr 1.2fr 1fr", padding:"13px 20px", borderBottom:"1px solid rgba(255,255,255,0.03)", cursor:"pointer", background:"transparent", animation:`fadeUp .3s ease ${i*.04}s both` }}>
                     <div style={{ fontWeight:600, fontSize:14, color:"#e2e8f0" }}>{s.full_name}</div>
                     <div style={{ fontSize:13, color:"#6b7280", fontWeight:500, alignSelf:"center" }}>{s.rank}</div>
-                    <div style={{ fontSize:13, color:"#9ca3af", alignSelf:"center" }}>{fmt(s.sign_off_date)}</div>
+                    <div style={{ fontSize:13, color:"#9ca3af", alignSelf:"center" }}>{s.sign_off_date ? fmt(s.sign_off_date) : "—"}</div>
                     <div style={{ fontSize:15, fontWeight:800, color:u.color, alignSelf:"center" }}>
-                      {days <= 0 ? "OVERDUE" : `${days}d`}
+                      {!s.sign_off_date ? "—" : days <= 0 ? "OVERDUE" : `${days}d`}
                     </div>
                     <div style={{ alignSelf:"center" }}>
                       <span style={{ fontSize:10, fontWeight:700, color:u.color, background:u.bg, border:`1px solid ${u.border}`, padding:"3px 10px", borderRadius:20 }}>
@@ -338,7 +341,7 @@ export default function ReliefPage() {
 
             {[
               { label:"Sign-Off Date",  val:fmt(selected.sign_off_date) },
-              { label:"Days Remaining", val:daysUntil(selected.sign_off_date) <= 0 ? "OVERDUE" : `${daysUntil(selected.sign_off_date)} days` },
+              { label:"Days Remaining", val: !selected.sign_off_date ? "—" : daysUntil(selected.sign_off_date) <= 0 ? "OVERDUE" : `${daysUntil(selected.sign_off_date)} days` },
               { label:"Relief Status",  val:selected.relief_status || "unassigned" },
               { label:"Urgency Level",  val:(selected.urgency_level||"on_track").replace("_"," ") },
               { label:"Email",          val:selected.email || "—" },
