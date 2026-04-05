@@ -980,6 +980,9 @@ export default function LandingPage() {
               <span style={{ fontSize:11, fontWeight:600, color:t.textMuted, minWidth:32 }}>{dark?"Dark":"Light"}</span>
             </div>
 
+            <a href="/portal" style={{ fontFamily:"'Outfit',sans-serif", fontSize:13, fontWeight:600, color:"#f97316", background:"rgba(249,115,22,0.1)", border:"1px solid rgba(249,115,22,0.3)", padding:"8px 18px", borderRadius:9, textDecoration:"none", transition:"all .2s" }}>
+              ⚓ Seafarer Portal
+            </a>
             <a href="/relief" style={{ fontFamily:"'Outfit',sans-serif", fontSize:13, fontWeight:700, color:"#fff", background:"#f97316", padding:"8px 20px", borderRadius:9, textDecoration:"none", boxShadow:"0 4px 14px rgba(249,115,22,.35)", transition:"all .2s" }}>
               Get Started Free
             </a>
